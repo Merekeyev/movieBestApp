@@ -13,7 +13,7 @@ class MovieTableViewCell: UITableViewCell {
 
     @IBOutlet weak var movieImageView: UIImageView!
     @IBOutlet weak var movieTitleLabel: UILabel!
-    var moviePreview: MoviePreview?{
+    var moviePreview: Movie?{
         didSet{
             updateView()
         }

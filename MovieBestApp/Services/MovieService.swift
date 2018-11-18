@@ -17,7 +17,9 @@ public enum Urls {
 public enum MovieService{
     
     case getPopular(Int)
-    
+    case getMovieDetail(Int)
+    case getActors(Int)
+    case getSimilarMovies(Int)
 }
 
 
@@ -30,6 +32,12 @@ extension MovieService: TargetType{
         switch self{
         case .getPopular:
             return "/movie/popular"
+        case .getMovieDetail(let movieId):
+            return "/movie/\(movieId)"
+        case .getActors(let movieId):
+            return "/movie/\(movieId)/credits"
+        case .getSimilarMovies(let movieId):
+            return "/movie/\(movieId)/similar"
         }
     }
     
@@ -37,12 +45,24 @@ extension MovieService: TargetType{
         switch self{
         case .getPopular:
             return .get
+        case .getMovieDetail:
+            return .get
+        case .getActors:
+            return .get
+        case .getSimilarMovies:
+            return .get
         }
     }
     
     public var sampleData: Data {
         switch self{
         case .getPopular:
+            return Data()
+        case .getMovieDetail:
+            return Data()
+        case .getActors:
+            return Data()
+        case .getSimilarMovies:
             return Data()
         }
     }
@@ -52,6 +72,8 @@ extension MovieService: TargetType{
         case .getPopular(let page):
             return .requestParameters(parameters: ["api_key" : Urls.apiKey,
                                                    "page" : page], encoding: URLEncoding.default)
+        case .getActors, .getSimilarMovies, .getMovieDetail:
+            return .requestParameters(parameters: ["api_key" : Urls.apiKey], encoding: URLEncoding.default)
         }
     }
     

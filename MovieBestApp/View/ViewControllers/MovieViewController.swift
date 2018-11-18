@@ -12,7 +12,7 @@ class MovieViewController: UIViewController {
 
     @IBOutlet weak var movieTableView: UITableView!
     private let provider = MoyaProvider<MovieService>()
-    fileprivate var moviePreviews = [MoviePreview]()
+    fileprivate var moviePreviews = [Movie]()
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -47,9 +47,9 @@ class MovieViewController: UIViewController {
             switch result{
             case .success(let response):
                 do{
-                    let jsonResult = try response.mapJSON() as! [String: Any]
-                    let jsonMoviePreviews = jsonResult["results"] as! [[String: Any]]
-                    self?.moviePreviews = jsonMoviePreviews.map({MoviePreview(JSON: $0)!})
+                    guard let jsonResult = try response.mapJSON() as? [String: Any] else {return}
+                    guard let jsonMoviePreviews = jsonResult["results"] as? [[String: Any]] else {return}
+                    self?.moviePreviews = jsonMoviePreviews.map({Movie(JSON: $0)!})
                     self?.movieTableView.reloadData()
                 }catch{
                     print("Mapping problem")
@@ -76,6 +76,12 @@ extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DetailMovieViewController") as? DetailMovieViewController else {return}
+        vc.movie = moviePreviews[indexPath.row]
+        self.present(vc, animated: true)
     }
     
 }

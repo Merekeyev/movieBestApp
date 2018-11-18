@@ -13,15 +13,18 @@ private enum Keys: String, CodingKey{
     case title = "title"
     case posterPath = "poster_path"
     case backdropPath = "backdrop_path"
+    case overview = "overview"
 }
 
-class MoviePreview: Mappable{
+class Movie: Mappable{
     
     var id : Int?
     var title : String?
     var posterPath: String?
     var backdropPath: String?
-    
+    var overview : String?
+    var actors : [Actor]?
+    var similarMovies : [Movie]?
     
     required init?(map: Map) {}
     
@@ -30,6 +33,7 @@ class MoviePreview: Mappable{
         title <- map[Keys.title.rawValue]
         posterPath <- map[Keys.posterPath.rawValue]
         backdropPath <- map[Keys.backdropPath.rawValue]
+        overview <- map[Keys.overview.rawValue]
     }
     
     
