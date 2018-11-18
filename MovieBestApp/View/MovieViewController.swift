@@ -7,14 +7,16 @@
 //
 
 import UIKit
-
+import Moya
 class MovieViewController: UIViewController {
 
     @IBOutlet weak var movieTableView: UITableView!
+    private let provider = MoyaProvider<MovieService>()
+    fileprivate var moviePreviews = [MoviePreview]()
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        
+        loadData(page: 1)
     }
     
     private func setupView(){
@@ -25,6 +27,7 @@ class MovieViewController: UIViewController {
     private func setupMovieTableView(){
         movieTableView.delegate = self
         movieTableView.dataSource = self
+        movieTableView.register(UINib(nibName: "MovieTableViewCell", bundle: nil), forCellReuseIdentifier: "MovieTableViewCell")
     }
     
     private func setupNavigationBar(){
@@ -38,19 +41,42 @@ class MovieViewController: UIViewController {
         searchBar.barTintColor = #colorLiteral(red: 0.968627451, green: 0.968627451, blue: 0.968627451, alpha: 1)
         self.navigationItem.titleView = searchBar
     }
+    
+    private func loadData(page: Int){
+        provider.request(.getPopular(page)) { [weak self](result) in
+            switch result{
+            case .success(let response):
+                do{
+                    let jsonResult = try response.mapJSON() as! [String: Any]
+                    let jsonMoviePreviews = jsonResult["results"] as! [[String: Any]]
+                    self?.moviePreviews = jsonMoviePreviews.map({MoviePreview(JSON: $0)!})
+                    self?.movieTableView.reloadData()
+                }catch{
+                    print("Mapping problem")
+                }
+            case .failure(let error):
+                print("Server problem \(error.localizedDescription)")
+            }
+        }
+    }
    
 
 }
 
 extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return moviePreviews.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        return UITableViewCell()
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "MovieTableViewCell", for: indexPath) as? MovieTableViewCell else {fatalError("Movie tableview cell problem")}
+        cell.moviePreview = moviePreviews[indexPath.row]
+        return cell
     }
     
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return UITableView.automaticDimension
+    }
     
 }
 
