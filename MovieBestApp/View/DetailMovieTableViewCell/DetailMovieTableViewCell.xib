@@ -36,11 +36,23 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kQk-ON-exS">
+                        <rect key="frame" x="456" y="16" width="22" height="22"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="tintColor" red="0.16862745100000001" green="0.27058823529999998" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <state key="normal" image="close">
+                            <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </state>
+                        <connections>
+                            <action selector="closeButtonPressed:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="7zo-ac-Uh8"/>
+                        </connections>
+                    </button>
                 </subviews>
                 <constraints>
                     <constraint firstItem="QDh-2p-GdR" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="2Ul-Du-NU9"/>
                     <constraint firstAttribute="trailing" secondItem="VuD-e8-XrB" secondAttribute="trailing" constant="16" id="9GC-PQ-9Z3"/>
                     <constraint firstAttribute="bottom" secondItem="VuD-e8-XrB" secondAttribute="bottom" constant="16" id="9UP-tU-noT"/>
+                    <constraint firstAttribute="trailing" secondItem="kQk-ON-exS" secondAttribute="trailing" constant="16" id="BLR-rh-aOs"/>
                     <constraint firstItem="QDh-2p-GdR" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="Cip-Y0-GjI"/>
                     <constraint firstAttribute="trailing" secondItem="QDh-2p-GdR" secondAttribute="trailing" id="MZH-Jf-eDm"/>
                     <constraint firstItem="VuD-e8-XrB" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="OPx-uh-nzs"/>
@@ -48,6 +60,7 @@
                     <constraint firstAttribute="trailing" secondItem="4h4-Y6-yhk" secondAttribute="trailing" constant="16" id="cTv-iZ-QKS"/>
                     <constraint firstItem="4h4-Y6-yhk" firstAttribute="top" secondItem="QDh-2p-GdR" secondAttribute="bottom" constant="8" id="m5I-eX-QcH"/>
                     <constraint firstItem="VuD-e8-XrB" firstAttribute="top" secondItem="4h4-Y6-yhk" secondAttribute="bottom" constant="4" id="ws6-QN-VU5"/>
+                    <constraint firstItem="kQk-ON-exS" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="16" id="ykb-zP-ZPa"/>
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
@@ -59,4 +72,7 @@
             <point key="canvasLocation" x="276.80000000000001" y="360.71964017991007"/>
         </tableViewCell>
     </objects>
+    <resources>
+        <image name="close" width="22" height="20"/>
+    </resources>
 </document>

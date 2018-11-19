@@ -20,6 +20,7 @@ public enum MovieService{
     case getMovieDetail(Int)
     case getActors(Int)
     case getSimilarMovies(Int)
+    case getUpcoming(Int)
 }
 
 
@@ -38,6 +39,8 @@ extension MovieService: TargetType{
             return "/movie/\(movieId)/credits"
         case .getSimilarMovies(let movieId):
             return "/movie/\(movieId)/similar"
+        case .getUpcoming:
+            return "/movie/upcoming"
         }
     }
     
@@ -50,6 +53,8 @@ extension MovieService: TargetType{
         case .getActors:
             return .get
         case .getSimilarMovies:
+            return .get
+        case .getUpcoming:
             return .get
         }
     }
@@ -64,12 +69,14 @@ extension MovieService: TargetType{
             return Data()
         case .getSimilarMovies:
             return Data()
+        case .getUpcoming:
+            return Data()
         }
     }
     
     public var task: Task {
         switch self{
-        case .getPopular(let page):
+        case .getPopular(let page), .getUpcoming(let page):
             return .requestParameters(parameters: ["api_key" : Urls.apiKey,
                                                    "page" : page], encoding: URLEncoding.default)
         case .getActors, .getSimilarMovies, .getMovieDetail:

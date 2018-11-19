@@ -13,6 +13,7 @@ class DetailMovieTableViewCell: UITableViewCell {
     @IBOutlet weak var posterImageView: UIImageView!
     @IBOutlet weak var movieTitleLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
+    var closeCompletion : (()->())?
     var movie : Movie?{
         didSet{
             updateView()
@@ -29,7 +30,10 @@ class DetailMovieTableViewCell: UITableViewCell {
        
     }
     
-   
+    @IBAction func closeButtonPressed(_ sender: UIButton) {
+        closeCompletion?()
+    }
+    
     
     private func updateView(){
         guard let movie = movie , let posterPath = movie.posterPath else {return}

@@ -101,6 +101,9 @@ extension DetailMovieViewController: UITableViewDelegate, UITableViewDataSource{
         case 0:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "DetailMovieTableViewCell", for: indexPath) as? DetailMovieTableViewCell else {fatalError()}
             cell.movie = movie
+            cell.closeCompletion = {
+                self.dismiss(animated: true)
+            }
             return cell
         case 1:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCollectionViewTableViewCell", for: indexPath) as? MovieCollectionViewTableViewCell else {fatalError()}
@@ -129,7 +132,6 @@ extension DetailMovieViewController: UITableViewDelegate, UITableViewDataSource{
             return 350
         case 2:
             return 350
-            
         default:
             return 450
         }
@@ -177,6 +179,15 @@ extension DetailMovieViewController: UICollectionViewDelegate, UICollectionViewD
             return CGSize(width: 100, height: 100)
         }
         
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if collectionView.tag == 1{
+            guard let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DetailMovieViewController") as? DetailMovieViewController else {fatalError()}
+            guard let movie = movie , let similarMovies = movie.similarMovies else {return}
+            vc.movie = similarMovies[indexPath.row]
+            self.present(vc, animated: true)
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {

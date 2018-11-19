@@ -127,6 +127,13 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		990F088321A255C0002A729D /* Transition */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Transition;
+			sourceTree = "<group>";
+		};
 		992D580121A1708F009BEB67 /* MovieTableViewCell */ = {
 			isa = PBXGroup;
 			children = (
@@ -219,6 +226,7 @@
 		C8AB8F74219EF792006225E5 /* MovieBestApp */ = {
 			isa = PBXGroup;
 			children = (
+				990F088321A255C0002A729D /* Transition */,
 				C8AB8FA7219EF94D006225E5 /* Model */,
 				C8AB8FA5219EF92E006225E5 /* View */,
 				C8AB8FA6219EF946006225E5 /* ViewModel */,

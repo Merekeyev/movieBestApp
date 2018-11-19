@@ -10,13 +10,25 @@ import UIKit
 import Moya
 class MovieViewController: UIViewController {
 
+    enum MovieType {
+        case popular
+        case upcoming
+    }
+    
     @IBOutlet weak var movieTableView: UITableView!
     private let provider = MoyaProvider<MovieService>()
-    fileprivate var moviePreviews = [Movie]()
+    fileprivate var popularMovies = [Movie]()
+    fileprivate var upcomingMovies = [Movie]()
+    fileprivate var type = MovieType.popular{
+        didSet{
+            movieTableView.reloadData()
+        }
+    }
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
-        loadData(page: 1)
+        loadPopularMovies(page: 1)
+        loadUpcomingMovies(page: 1)
     }
     
     private func setupView(){
@@ -42,15 +54,33 @@ class MovieViewController: UIViewController {
         self.navigationItem.titleView = searchBar
     }
     
-    private func loadData(page: Int){
+    private func loadPopularMovies(page: Int){
         provider.request(.getPopular(page)) { [weak self](result) in
             switch result{
             case .success(let response):
                 do{
                     guard let jsonResult = try response.mapJSON() as? [String: Any] else {return}
                     guard let jsonMoviePreviews = jsonResult["results"] as? [[String: Any]] else {return}
-                    self?.moviePreviews = jsonMoviePreviews.map({Movie(JSON: $0)!})
+                    self?.popularMovies = jsonMoviePreviews.map({Movie(JSON: $0)!})
                     self?.movieTableView.reloadData()
+                }catch{
+                    print("Mapping problem")
+                }
+            case .failure(let error):
+                print("Server problem \(error.localizedDescription)")
+            }
+        }
+
+    }
+    
+    private func loadUpcomingMovies(page: Int){
+        provider.request(.getUpcoming(page)) { [weak self](result) in
+            switch result{
+            case .success(let response):
+                do{
+                    guard let jsonResult = try response.mapJSON() as? [String: Any] else {return}
+                    guard let jsonMoviePreviews = jsonResult["results"] as? [[String: Any]] else {return}
+                    self?.upcomingMovies = jsonMoviePreviews.map({Movie(JSON: $0)!})
                 }catch{
                     print("Mapping problem")
                 }
@@ -65,12 +95,12 @@ class MovieViewController: UIViewController {
 
 extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return moviePreviews.count
+        return type == .popular ?  popularMovies.count : upcomingMovies.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "MovieTableViewCell", for: indexPath) as? MovieTableViewCell else {fatalError("Movie tableview cell problem")}
-        cell.moviePreview = moviePreviews[indexPath.row]
+        cell.moviePreview = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
         return cell
     }
     
@@ -80,15 +110,24 @@ extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DetailMovieViewController") as? DetailMovieViewController else {return}
-        vc.movie = moviePreviews[indexPath.row]
+        vc.movie = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
         self.present(vc, animated: true)
     }
     
 }
 
+
+
 extension MovieViewController: UISearchBarDelegate{
     func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
-        
+        switch selectedScope {
+        case 0:
+            type = .popular
+        case 1:
+            type = .upcoming
+        default:
+            break
+        }
     }
 }
 
