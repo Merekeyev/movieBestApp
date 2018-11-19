@@ -21,7 +21,13 @@ class MovieViewController: UIViewController {
     fileprivate var popularMovies = [Movie]()
     fileprivate var upcomingMovies = [Movie]()
     fileprivate var filtredMovies = [Movie]()
-    fileprivate var isSearching = false
+    fileprivate var isSearching = false{
+        didSet{
+            movieTableView.reloadData()
+        }
+    }
+    fileprivate var timer = Timer()
+    fileprivate var searchBar = UISearchBar()
     fileprivate var type = MovieType.popular{
         didSet{
             movieTableView.reloadData()
@@ -47,7 +53,6 @@ class MovieViewController: UIViewController {
     }
     
     private func setupNavigationBar(){
-        let searchBar = UISearchBar()
         searchBar.placeholder = "Поиск фильмов"
         searchBar.showsScopeBar = true
         searchBar.delegate = self
@@ -80,6 +85,7 @@ class MovieViewController: UIViewController {
     }
     
     private func loadUpcomingMovies(page: Int){
+        
         provider.request(.getUpcoming(page)) { [weak self](result) in
             switch result{
             case .success(let response):
@@ -95,6 +101,31 @@ class MovieViewController: UIViewController {
             }
         }
     }
+    
+    @objc private func searchMovies(){
+        searchBar.resignFirstResponder()
+        if timer.userInfo != nil{
+            self.filtredMovies.removeAll()
+            provider.request(.getSearchMovies(timer.userInfo as! String)) { [weak self](result) in
+                switch result{
+                case .success(let response):
+                    do{
+                        guard let jsonResult = try response.mapJSON() as? [String: Any] else {return}
+                        guard let jsonMoviePreviews = jsonResult["results"] as? [[String: Any]] else {return}
+                        self?.filtredMovies = jsonMoviePreviews.map({Movie(JSON: $0)!})
+                        self?.isSearching = true
+                    }catch{
+                        print("Mapping problem")
+                    }
+                case .failure(let error):
+                    print("Server problem \(error.localizedDescription)")
+                }
+            }
+        }
+        
+    }
+    
+    
     
     
 }
@@ -149,32 +180,43 @@ extension MovieViewController: UISearchBarDelegate{
     
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-        self.filtredMovies.removeAll()
+
+        //        self.filtredMovies.removeAll()
+//        if searchText == ""{
+//            isSearching = false
+//            movieTableView.reloadData()
+//        }else {
+//            isSearching = true
+//        }
+//        switch type {
+//        case .popular:
+//            for movie in popularMovies{
+//                guard let contains = movie.title?.lowercased().contains(searchText.lowercased()) else {return}
+//                if contains{
+//                    self.filtredMovies.append(movie)
+//                }
+//            }
+//            print(filtredMovies.count)
+//            movieTableView.reloadData()
+//        case .upcoming:
+//            for movie in upcomingMovies{
+//                guard let contains = movie.title?.lowercased().contains(searchText.lowercased()) else {return}
+//                if contains{
+//                    self.filtredMovies.append(movie)
+//                }
+//            }
+//            movieTableView.reloadData()
+//        }
         if searchText == ""{
             isSearching = false
-            movieTableView.reloadData()
-        }else {
-            isSearching = true
+            searchBar.resignFirstResponder()
         }
-        switch type {
-        case .popular:
-            for movie in popularMovies{
-                guard let contains = movie.title?.lowercased().contains(searchText.lowercased()) else {return}
-                if contains{
-                    self.filtredMovies.append(movie)
-                }
-            }
-            print(filtredMovies.count)
-            movieTableView.reloadData()
-        case .upcoming:
-            for movie in upcomingMovies{
-                guard let contains = movie.title?.lowercased().contains(searchText.lowercased()) else {return}
-                if contains{
-                    self.filtredMovies.append(movie)
-                }
-            }
-            movieTableView.reloadData()
-        }
+        timer.invalidate()
+        timer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(searchMovies), userInfo: searchText, repeats: false)
+    }
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        searchBar.resignFirstResponder()
     }
 }
 

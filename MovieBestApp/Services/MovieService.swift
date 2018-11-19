@@ -23,6 +23,7 @@ public enum MovieService{
     case getUpcoming(Int)
     case getGenres
     case getMoviesByGenre(Int)
+    case getSearchMovies(String)
 }
 
 
@@ -47,6 +48,8 @@ extension MovieService: TargetType{
             return "/genre/movie/list"
         case .getMoviesByGenre:
             return "/discover/movie"
+        case .getSearchMovies:
+            return "/search/movie"
             
         }
     }
@@ -67,6 +70,8 @@ extension MovieService: TargetType{
             return .get
         case .getMoviesByGenre:
             return .get
+        case .getSearchMovies:
+            return .get
         }
     }
     
@@ -86,6 +91,8 @@ extension MovieService: TargetType{
             return Data()
         case .getMoviesByGenre:
             return Data()
+        case .getSearchMovies:
+            return Data()
         }
     }
     
@@ -100,6 +107,9 @@ extension MovieService: TargetType{
         case .getMoviesByGenre(let genreId):
             return .requestParameters(parameters: ["api_key": Urls.apiKey,
                                                    "with_genres":genreId], encoding: URLEncoding.default)
+        case .getSearchMovies(let searchText):
+            return .requestParameters(parameters: ["api_key" : Urls.apiKey,
+                                                   "query" : searchText], encoding: URLEncoding.default)
         }
     }
     
