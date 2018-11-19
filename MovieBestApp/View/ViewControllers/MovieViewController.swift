@@ -28,6 +28,8 @@ class MovieViewController: UIViewController {
     }
     fileprivate var timer = Timer()
     fileprivate var searchBar = UISearchBar()
+    fileprivate var popularPage = 1
+    fileprivate var upcomingPage = 1
     fileprivate var type = MovieType.popular{
         didSet{
             movieTableView.reloadData()
@@ -72,7 +74,7 @@ class MovieViewController: UIViewController {
                 do{
                     guard let jsonResult = try response.mapJSON() as? [String: Any] else {return}
                     guard let jsonMoviePreviews = jsonResult["results"] as? [[String: Any]] else {return}
-                    self?.popularMovies = jsonMoviePreviews.map({Movie(JSON: $0)!})
+                    self?.popularMovies += jsonMoviePreviews.map({Movie(JSON: $0)!})
                     self?.movieTableView.reloadData()
                 }catch{
                     print("Mapping problem")
@@ -92,7 +94,8 @@ class MovieViewController: UIViewController {
                 do{
                     guard let jsonResult = try response.mapJSON() as? [String: Any] else {return}
                     guard let jsonMoviePreviews = jsonResult["results"] as? [[String: Any]] else {return}
-                    self?.upcomingMovies = jsonMoviePreviews.map({Movie(JSON: $0)!})
+                    self?.upcomingMovies += jsonMoviePreviews.map({Movie(JSON: $0)!})
+                    self?.movieTableView.reloadData()
                 }catch{
                     print("Mapping problem")
                 }
@@ -143,7 +146,23 @@ extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
         if isSearching{
             cell.moviePreview = filtredMovies[indexPath.row]
         }else {
-            cell.moviePreview = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
+            switch type{
+            case .popular:
+                if popularMovies.count == indexPath.row + 1{
+                    popularPage += 1
+                    
+                    self.loadPopularMovies(page: popularPage)
+                }
+                cell.moviePreview = popularMovies[indexPath.row]
+                
+            case .upcoming:
+                if upcomingMovies.count == indexPath.row + 1{
+                    upcomingPage += 1
+                    self.loadUpcomingMovies(page: upcomingPage)
+                }
+                cell.moviePreview = upcomingMovies[indexPath.row]
+            }
+            
         }
         return cell
     }
