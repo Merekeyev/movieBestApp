@@ -9,19 +9,23 @@
 import UIKit
 import Moya
 class MovieViewController: UIViewController {
-
+    
     enum MovieType {
         case popular
         case upcoming
+        
     }
     
     @IBOutlet weak var movieTableView: UITableView!
     private let provider = MoyaProvider<MovieService>()
     fileprivate var popularMovies = [Movie]()
     fileprivate var upcomingMovies = [Movie]()
+    fileprivate var filtredMovies = [Movie]()
+    fileprivate var isSearching = false
     fileprivate var type = MovieType.popular{
         didSet{
             movieTableView.reloadData()
+            movieTableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: UITableView.ScrollPosition.top, animated: true)
         }
     }
     override func viewDidLoad() {
@@ -52,6 +56,8 @@ class MovieViewController: UIViewController {
         UISegmentedControl.appearance(whenContainedInInstancesOf: [UISearchBar.self]).backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         searchBar.barTintColor = #colorLiteral(red: 0.968627451, green: 0.968627451, blue: 0.968627451, alpha: 1)
         self.navigationItem.titleView = searchBar
+        
+        
     }
     
     private func loadPopularMovies(page: Int){
@@ -70,7 +76,7 @@ class MovieViewController: UIViewController {
                 print("Server problem \(error.localizedDescription)")
             }
         }
-
+        
     }
     
     private func loadUpcomingMovies(page: Int){
@@ -89,18 +95,25 @@ class MovieViewController: UIViewController {
             }
         }
     }
-   
-
+    
+    
 }
 
 extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if isSearching{
+            return filtredMovies.count
+        }
         return type == .popular ?  popularMovies.count : upcomingMovies.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "MovieTableViewCell", for: indexPath) as? MovieTableViewCell else {fatalError("Movie tableview cell problem")}
-        cell.moviePreview = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
+        if isSearching{
+            cell.moviePreview = filtredMovies[indexPath.row]
+        }else {
+            cell.moviePreview = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
+        }
         return cell
     }
     
@@ -110,7 +123,11 @@ extension MovieViewController: UITableViewDelegate, UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "DetailMovieViewController") as? DetailMovieViewController else {return}
-        vc.movie = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
+        if isSearching{
+            vc.movie = filtredMovies[indexPath.row]
+        }else {
+            vc.movie = type == .popular ?  popularMovies[indexPath.row] : upcomingMovies[indexPath.row]
+        }
         self.present(vc, animated: true)
     }
     
@@ -127,6 +144,36 @@ extension MovieViewController: UISearchBarDelegate{
             type = .upcoming
         default:
             break
+        }
+    }
+    
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        self.filtredMovies.removeAll()
+        if searchText == ""{
+            isSearching = false
+            movieTableView.reloadData()
+        }else {
+            isSearching = true
+        }
+        switch type {
+        case .popular:
+            for movie in popularMovies{
+                guard let contains = movie.title?.lowercased().contains(searchText.lowercased()) else {return}
+                if contains{
+                    self.filtredMovies.append(movie)
+                }
+            }
+            print(filtredMovies.count)
+            movieTableView.reloadData()
+        case .upcoming:
+            for movie in upcomingMovies{
+                guard let contains = movie.title?.lowercased().contains(searchText.lowercased()) else {return}
+                if contains{
+                    self.filtredMovies.append(movie)
+                }
+            }
+            movieTableView.reloadData()
         }
     }
 }
