@@ -21,6 +21,8 @@ public enum MovieService{
     case getActors(Int)
     case getSimilarMovies(Int)
     case getUpcoming(Int)
+    case getGenres
+    case getMoviesByGenre(Int)
 }
 
 
@@ -41,6 +43,11 @@ extension MovieService: TargetType{
             return "/movie/\(movieId)/similar"
         case .getUpcoming:
             return "/movie/upcoming"
+        case .getGenres:
+            return "/genre/movie/list"
+        case .getMoviesByGenre:
+            return "/discover/movie"
+            
         }
     }
     
@@ -55,6 +62,10 @@ extension MovieService: TargetType{
         case .getSimilarMovies:
             return .get
         case .getUpcoming:
+            return .get
+        case .getGenres:
+            return .get
+        case .getMoviesByGenre:
             return .get
         }
     }
@@ -71,6 +82,10 @@ extension MovieService: TargetType{
             return Data()
         case .getUpcoming:
             return Data()
+        case .getGenres:
+            return Data()
+        case .getMoviesByGenre:
+            return Data()
         }
     }
     
@@ -79,8 +94,12 @@ extension MovieService: TargetType{
         case .getPopular(let page), .getUpcoming(let page):
             return .requestParameters(parameters: ["api_key" : Urls.apiKey,
                                                    "page" : page], encoding: URLEncoding.default)
-        case .getActors, .getSimilarMovies, .getMovieDetail:
+        case .getActors, .getSimilarMovies, .getMovieDetail, .getGenres:
             return .requestParameters(parameters: ["api_key" : Urls.apiKey], encoding: URLEncoding.default)
+            
+        case .getMoviesByGenre(let genreId):
+            return .requestParameters(parameters: ["api_key": Urls.apiKey,
+                                                   "with_genres":genreId], encoding: URLEncoding.default)
         }
     }
     

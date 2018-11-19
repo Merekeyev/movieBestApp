@@ -1,5 +1,5 @@
 //
-//  GenresTableViewCell.swift
+//  GenreHeaderCollectionReusableView.swift
 //  MovieBestApp
 //
 //  Created by Temirlan Merekeyev on 11/19/18.
@@ -8,9 +8,9 @@
 
 import UIKit
 
-class GenresTableViewCell: UITableViewCell {
+class GenreHeaderCollectionReusableView: UICollectionReusableView {
 
-    @IBOutlet weak var genreLabel: UILabel!
+    @IBOutlet weak var genreTitleLabel: UILabel!
     var genre : Genre?{
         didSet{
             setupView()
@@ -19,14 +19,11 @@ class GenresTableViewCell: UITableViewCell {
     override func awakeFromNib() {
         super.awakeFromNib()
         setupView()
-        
-        // Initialization code
-    }
-
-    private func setupView(){
-        guard let genre = genre else {return}
-        genreLabel.text = genre.name
     }
     
+    private func setupView(){
+        guard let genre = genre else {return}
+        genreTitleLabel.text = genre.name
+    }
     
 }
