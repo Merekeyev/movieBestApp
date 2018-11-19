@@ -101,8 +101,8 @@ extension DetailMovieViewController: UITableViewDelegate, UITableViewDataSource{
         case 0:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: "DetailMovieTableViewCell", for: indexPath) as? DetailMovieTableViewCell else {fatalError()}
             cell.movie = movie
-            cell.closeCompletion = {
-                self.dismiss(animated: true)
+            cell.closeCompletion = { [weak self]()-> () in
+                self?.dismiss(animated: true)
             }
             return cell
         case 1:
